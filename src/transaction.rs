@@ -4,28 +4,33 @@ use std::slice;
 use bincode::{serialize, deserialize};
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
+use crate::crypto::hash::{Hashable,H256};
+use ring::{digest};
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Transaction {
     input: std::string::String,
     output: std::string::String,
-    signature: std::string::String 
+    pub signature: bool,
 }
 
-// impl Transaction {
-//     fn signed(&mut self, sig: *str) -> () {
-//         self.signature = true
-//     }
-// }
+impl Hashable for Transaction {
+    fn hash(&self) -> H256 {
+        let temp = digest::digest(&digest::SHA256, &serialize(&self).unwrap());
+        <H256>::from(temp)
+    }
+}
 
 /// Create digital signature of a transaction
 pub fn sign(t: &Transaction, key: &Ed25519KeyPair) -> Signature {
     //unimplemented!()
    
-    // t.signature = true;
+    
 
     let t_s = serialize(&t).unwrap();
     let sig = key.sign(&t_s);
+    // t.signature = true;
     return sig;
 
 }
@@ -63,7 +68,7 @@ mod tests {
         .take(30)
         .collect();
         let s = "";
-        let signature = s.to_string();
+        let signature = false;
         // signature = signature.to_string();
 
         let ret = Transaction{input, output, signature};

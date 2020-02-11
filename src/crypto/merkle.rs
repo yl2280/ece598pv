@@ -1,10 +1,11 @@
 use super::hash::{Hashable, H256};
 use ring::{digest};
 use ring::digest::Algorithm;
+use serde::{Serialize,Deserialize};
 
 
 /// A Merkle tree.
-#[derive(Debug, Default)]
+#[derive(Serialize, Deserialize,Debug, Default, Clone)]
 struct Node {
     val: H256,
     l: Option<Box<Node>>,
@@ -12,7 +13,7 @@ struct Node {
 }
 
 
-#[derive(Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct MerkleTree {
     root: Option<Box<H256>>,
     // blocks: Vec<H256>,
