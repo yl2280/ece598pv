@@ -54,6 +54,13 @@ impl MerkleTree {
 
         while vec.len() > 1{
             let mut vec_ = Vec::new();
+            if vec.len()%2 == 1{
+                let le = vec.len()-1;
+                let odd = &vec[le];
+                let n = odd.val;
+                let last = Node{val: odd.val, l: odd.l.clone() , r: odd.r.clone()};
+                vec.push(last);
+            }
             while vec.len()!= 0{
                 if vec.len() == 1{
                     vec_.push(vec.remove(0));
