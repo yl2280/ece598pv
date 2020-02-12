@@ -5,7 +5,7 @@ use serde::{Serialize,Deserialize};
 
 
 /// A Merkle tree.
-#[derive(Serialize, Deserialize,Debug, Default, Clone)]
+#[derive(Serialize, Deserialize,Debug, Default, Clone, PartialEq)]
 struct Node {
     val: H256,
     l: Option<Box<Node>>,
@@ -13,7 +13,7 @@ struct Node {
 }
 
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone,PartialEq)]
 pub struct MerkleTree {
     root: Option<Box<H256>>,
     // blocks: Vec<H256>,

@@ -13,7 +13,9 @@ pub struct Blockchain {
      genesisBlock: Option<Block>,
      tip: H256,
      map: HashMap<H256, Block>,
+     // height_map: HashMap<H256, u32>
      height: u32,
+
 }
 
 impl Blockchain {
@@ -35,15 +37,28 @@ impl Blockchain {
     pub fn insert(&mut self, block: &Block) {
         // unimplemented!()
         if self.genesisBlock.is_none(){
-            // let newB = block.as_ref();
-            self.genesisBlock = Some(block.clone());
-            self.tip = block.hash();
-            self.map.insert(block.hash(), block.clone());
+            let mut b = block.clone();
+            b.height = 0;
+            self.tip = b.hash();
+            self.map.insert(b.hash(), b.clone());
+            self.genesisBlock = Some(b);
+
         }
         else{
-            self.tip = block.hash();
-            self.map.insert(block.hash(), block.clone());
-            self.height += 1;
+            let parant = block.header.clone().unwrap().parant.unwrap();
+            if self.map.get(&parant).unwrap().height + 1 > self.height{
+                self.height += 1;
+                let mut b = block.clone();
+                b.height = self.height;
+                self.tip = b.hash();
+                self.map.insert(b.hash(), b.clone());
+            }
+            else{
+                let mut b = block.clone();
+                b.height = self.map.get(&parant).unwrap().height + 1;
+                // self.tip = b.hash();
+                self.map.insert(b.hash(), b.clone());
+            }
         }
 
     }
@@ -57,7 +72,22 @@ impl Blockchain {
     /// Get the last block's hash of the longest chain
     #[cfg(any(test, test_utilities))]
     pub fn all_blocks_in_longest_chain(&self) -> Vec<H256> {
-        unimplemented!()
+        // unimplemented!()
+        // let intit = digest::digest(&digest::SHA256, "None".as_bytes());
+        // let t = <H256>::from(intit);
+        let mut ret = Vec::new();
+        // ret.push(t);
+        let parant = self.map.get(&self.tip).unwrap().header.clone().unwrap().parant.unwrap();
+        let mut parant_b = self.map.get(&parant);
+        ret.push(self.tip);
+        ret.insert(0,*parant);
+        while *parant_b.unwrap() != *self.genesisBlock.as_ref().unwrap(){
+            let key = parant_b.unwrap().header.as_ref().unwrap().parant.as_ref().unwrap(); 
+            parant_b = self.map.get(&key);
+            ret.insert(0,**key);
+        }
+        return ret;
+
     }
 
 }

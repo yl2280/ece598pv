@@ -9,13 +9,13 @@ use std::time::{Duration, SystemTime};
 
 use chrono::{NaiveDate, NaiveDateTime};
 
-#[derive(Serialize, Deserialize,Debug, Default, Clone)]
+#[derive(Serialize, Deserialize,Debug, Default, Clone,PartialEq)]
 pub struct Header {
-    parant: Option<Box<H256>>,
-    nonce: u32,
-    difficulty: H256,
-    timestamp: i64,
-    merkle_root: Option<Box<MerkleTree>>,
+    pub parant: Option<Box<H256>>,
+    pub nonce: u32,
+    pub difficulty: H256,
+    pub timestamp: i64,
+    pub merkle_root: Option<Box<MerkleTree>>,
 }
 
 impl Hashable for Header {
@@ -25,10 +25,11 @@ impl Hashable for Header {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Block {
-	header: Option<Box<Header>>,
-    content: Option<Vec<Transaction>>,
+   pub header: Option<Box<Header>>,
+   pub content: Option<Vec<Transaction>>,
+   pub height: u32,
 }
  
 impl Hashable for Block {
@@ -60,6 +61,7 @@ pub mod test {
         return Block{
         	header: Some(Box::new(head)),
         	content: None,
+            height: 0,
         };
     }
 }

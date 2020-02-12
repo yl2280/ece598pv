@@ -8,7 +8,7 @@ use crate::crypto::hash::{Hashable,H256};
 use ring::{digest};
 
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq)]
 pub struct Transaction {
     input: std::string::String,
     output: std::string::String,
