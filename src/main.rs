@@ -19,6 +19,7 @@ use std::net;
 use std::process;
 use std::thread;
 use std::time;
+use std::sync::{Arc, Mutex};
 
 fn main() {
     // parse command line arguments
@@ -81,8 +82,10 @@ fn main() {
     worker_ctx.start();
 
     // start the miner
+    let block = blockchain::Blockchain::new();
+    let block_m = Arc::new(Mutex::new(block));
     let (miner_ctx, miner) = miner::new(
-        &server,
+        &server, &block_m
     );
     miner_ctx.start();
 
