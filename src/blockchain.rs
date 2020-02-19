@@ -12,7 +12,7 @@ use std::collections::HashMap;
 pub struct Blockchain {
      genesisBlock: Option<Block>,
      tip: H256,
-     map: HashMap<H256, Block>,
+     pub map: HashMap<H256, Block>,
      // height_map: HashMap<H256, u32>
      height: u32,
 

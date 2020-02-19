@@ -8,6 +8,10 @@ use std::time;
 use std::thread;
 use std::sync::{Arc, Mutex};
 use crate::blockchain::{Blockchain};
+use crate::block::{Block,Header};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use rand::prelude::*;
+use chrono::prelude::*;
 
 enum ControlSignal {
     Start(u64), // the number controls the lambda of interval between block generation
@@ -116,6 +120,27 @@ impl Context {
             }
 
             // TODO: actual mining
+            let mut rng = rand::thread_rng();
+            let n2:u32 = rng.gen();
+            let parent = self.blockchain.lock().unwrap().tip();
+            let diff = self.blockchain.lock().unwrap().map.get(&parent).unwrap().header.as_ref().unwrap().difficulty;
+            let now = Utc::now();
+            let head = Header{
+            	parant: Some(Box::new(parent)),
+            	nonce: n2,
+            	difficulty: diff,
+            	timestamp:  now.timestamp_millis(),
+            	merkle_root: None,
+            };
+
+            let block = Block{
+            	header: Some(Box::new(head)),
+            	content: None,
+            	height: 0,
+            };
+
+            self.blockchain.lock().unwrap().insert(&block);
+
 
             if let OperatingState::Run(i) = self.operating_state {
                 if i != 0 {
