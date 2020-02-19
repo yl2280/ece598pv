@@ -12,6 +12,7 @@ use crate::block::{Block,Header};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use rand::prelude::*;
 use chrono::prelude::*;
+use crate::crypto::hash::Hashable;
 
 enum ControlSignal {
     Start(u64), // the number controls the lambda of interval between block generation
@@ -139,7 +140,11 @@ impl Context {
             	height: 0,
             };
 
-            self.blockchain.lock().unwrap().insert(&block);
+            if block.hash() <=diff{
+            	self.blockchain.lock().unwrap().insert(&block);
+            }
+
+            // self.blockchain.lock().unwrap().insert(&block);
 
 
             if let OperatingState::Run(i) = self.operating_state {
