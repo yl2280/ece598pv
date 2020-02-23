@@ -12,7 +12,9 @@ use crate::block::{Block,Header};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use rand::prelude::*;
 use chrono::prelude::*;
-use crate::crypto::hash::Hashable;
+use crate::crypto::hash::{Hashable, H256};
+use ring::{digest};
+
 
 enum ControlSignal {
     Start(u64), // the number controls the lambda of interval between block generation
@@ -96,6 +98,8 @@ impl Context {
     }
 
     fn miner_loop(&mut self) {
+        let rand_u8 = digest::digest(&digest::SHA256,"442cabd17e40d95ac0932d977c0759397b9db4d93c4d62c368b95419db574db0".as_bytes());
+        let diff_rand = <H256>::from(rand_u8);
         // main mining loop
         loop {
             // check and react to control signals
@@ -124,13 +128,27 @@ impl Context {
             let mut rng = rand::thread_rng();
             let n2:u32 = rng.gen();
             let parent = self.blockchain.lock().unwrap().tip();
-            let diff = self.blockchain.lock().unwrap().map.get(&parent).unwrap().header.as_ref().unwrap().difficulty;
+            let diff;
+            if  self.blockchain.lock().unwrap().map.get(&parent).is_none(){
+                diff = self.blockchain.lock().unwrap().map.get(&parent).unwrap().header.as_ref().unwrap().difficulty;
+            }
+            else{
+                diff = diff_rand;
+            }
+
+            let in_ms:u64;
+            match SystemTime::now().duration_since(UNIX_EPOCH) {
+                Ok(n) => in_ms = n.as_secs() * 1000 + n.subsec_nanos() as u64 / 1000000,
+                Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+            }
+
+
             let now = Utc::now();
             let head = Header{
             	parant: Some(Box::new(parent)),
             	nonce: n2,
             	difficulty: diff,
-            	timestamp:  now.timestamp_millis(),
+            	timestamp:  in_ms,
             	merkle_root: None,
             };
 

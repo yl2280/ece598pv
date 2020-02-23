@@ -5,8 +5,8 @@ use bincode::{serialize, deserialize};
 use crate::transaction::Transaction;
 use ring::{digest};
 use rand::prelude::*;
-use std::time::{Duration, SystemTime};
-
+// use std::time::{Duration, SystemTime};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use chrono::{NaiveDate, NaiveDateTime};
 
 #[derive(Serialize, Deserialize,Debug, Default, Clone,PartialEq)]
@@ -14,7 +14,7 @@ pub struct Header {
     pub parant: Option<Box<H256>>,
     pub nonce: u32,
     pub difficulty: H256,
-    pub timestamp: i64,
+    pub timestamp: u64,
     pub merkle_root: Option<Box<MerkleTree>>,
 }
 
@@ -49,12 +49,18 @@ pub mod test {
         let n2:u32 = rng.gen();
          // let now = SystemTime::now()
         let date_time: NaiveDateTime = NaiveDate::from_ymd(2017, 11, 12).and_hms(17, 33, 44);
+        let in_ms:u64;
+        match SystemTime::now().duration_since(UNIX_EPOCH) {
+            Ok(n) => in_ms = n.as_secs() * 1000 + n.subsec_nanos() as u64 / 1000000,
+            Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+        }
+
 
         let head = Header{
         	parant: Some(Box::new(*parent)),
         	nonce: n2,
         	difficulty: *parent,
-        	timestamp: date_time.timestamp(),
+        	timestamp: in_ms,
         	merkle_root: None,
         };
 
