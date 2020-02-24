@@ -1,5 +1,5 @@
 use crate::network::server::Handle as ServerHandle;
-
+use crate::network::message::{Message};
 use log::info;
 
 use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
@@ -160,6 +160,9 @@ impl Context {
 
             if block.hash() <=diff{
             	self.blockchain.lock().unwrap().insert(&block);
+                let mut vec = Vec::new();
+                vec.push(block.hash());
+                self.server.broadcast(Message::NewBlockHashes(vec));
             }
 
             // self.blockchain.lock().unwrap().insert(&block);
