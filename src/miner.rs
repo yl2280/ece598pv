@@ -129,7 +129,7 @@ impl Context {
             let n2:u32 = rng.gen();
             let parent = self.blockchain.lock().unwrap().tip();
             let diff;
-            if  self.blockchain.lock().unwrap().map.get(&parent).is_none(){
+            if  self.blockchain.lock().unwrap().map.get(&parent).is_some(){
                 diff = self.blockchain.lock().unwrap().map.get(&parent).unwrap().header.as_ref().unwrap().difficulty;
             }
             else{
@@ -157,13 +157,20 @@ impl Context {
             	content: None,
             	height: 0,
             };
-
+            let size = self.blockchain.lock().unwrap().map.keys().len();
+            info!("the length of blockchain is {}", size);
             if block.hash() <=diff{
             	self.blockchain.lock().unwrap().insert(&block);
                 let mut vec = Vec::new();
                 vec.push(block.hash());
                 self.server.broadcast(Message::NewBlockHashes(vec));
             }
+
+            // else{
+            //     let mut vec = Vec::new();
+            //     vec.push(block.hash());
+            //     self.server.broadcast(Message::NewBlockHashes(vec));
+            // }
 
             // self.blockchain.lock().unwrap().insert(&block);
 

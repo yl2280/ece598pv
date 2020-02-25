@@ -25,6 +25,22 @@ impl Blockchain {
         // let mut x = None;
         let intit = digest::digest(&digest::SHA256, "None".as_bytes());
         let t = <H256>::from(intit);
+        let rand_u8 = digest::digest(&digest::SHA256,"442cabd17e40d95ac0932d977c0759397b9db4d93c4d62c368b95419db574db0".as_bytes());
+        let diff_rand = <H256>::from(rand_u8);
+        // let head = Header{
+        //     	parant: None,
+        //     	nonce: 0,
+        //     	difficulty: diff_rand,
+        //     	timestamp:  0,
+        //     	merkle_root: None,
+        //     };
+
+        // let block = Block{
+        //     header: Some(Box::new(head)),
+        //     content: None,
+        //     height: 0,
+        // };
+        // let mut t = 
         Blockchain{
             genesisBlock: None,
             tip: t,
@@ -41,7 +57,7 @@ impl Blockchain {
             b.height = 0;
             self.tip = b.hash();
             self.map.insert(b.hash(), b.clone());
-            self.genesisBlock = Some(b);
+            // self.genesisBlock = Some(b);
 
         }
         else{

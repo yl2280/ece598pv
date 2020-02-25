@@ -21,7 +21,8 @@ pub struct Context {
 pub fn new(
     num_worker: usize,
     msg_src: channel::Receiver<(Vec<u8>, peer::Handle)>,
-    server: &ServerHandle
+    server: &ServerHandle,
+    blockchain: &Arc<Mutex<Blockchain>>,
 ) -> Context {
     let block = Blockchain::new();
     let block_m = Arc::new(Mutex::new(block));
@@ -29,7 +30,7 @@ pub fn new(
         msg_chan: msg_src,
         num_worker,
         server: server.clone(),
-        blockchain: block_m,
+        blockchain: Arc::clone(blockchain),
     }
 }
 
@@ -71,34 +72,40 @@ impl Context {
                             }
                         }
                         if vec.len() != 0{
+                            // println!("We got here first: {:?}", vec.len());
                             peer.write(Message::GetBlocks(vec));
                         }
                     }
                 }
 
-                Message::GetBlocks(nonce) => {
-                    debug!("GetBlocks: {:?}", nonce);
-                    if nonce.len() != 0{
+                Message::GetBlocks(blk) => {
+                    debug!("GetBlocks: {:?}", blk);
+                    let blockchain = self.blockchain.lock().unwrap();
+                    let mut nonce = blk.clone();
+                    // if nonce.len() != 0{
                         let mut vec = Vec::new();
                         for i in nonce.iter(){
-                            if self.blockchain.lock().unwrap().map.get(&i).is_some(){
+                            if !blockchain.map.get(&i).is_none(){
                                 // let temp = self.blockchain.lock().unwrap().map.get(&i).unwrap();
                                 // peer.write(Message::GetBlocks(nonce));
-                                vec.push(self.blockchain.lock().unwrap().map.get(&i).unwrap().clone());
+                                vec.push(blockchain.map.get(&i).unwrap().clone());
                             }
                         }
                         if vec.len() != 0{
+                            println!("We got here: {:?}", vec.len());
                             peer.write(Message::Blocks(vec));
                         }
-                    }
+                    // }
                 }
 
-                Message::Blocks(nonce) => {
-                    debug!("Blocks: {:?}", nonce);
+                Message::Blocks(blk) => {
+                    debug!("Blocks: {:?}", blk);
+                    let mut blockchain = self.blockchain.lock().unwrap();
+                    let mut nonce = blk.clone();
                     for i in nonce.iter(){
                         // let h = 
-                        if self.blockchain.lock().unwrap().map.get(&i.hash()).is_none(){
-                            self.blockchain.lock().unwrap().insert(&i);
+                        if blockchain.map.get(&i.hash()).is_none(){
+                            blockchain.insert(&i);
                         }
                     }
                 }
