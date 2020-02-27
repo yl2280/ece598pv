@@ -118,9 +118,17 @@ mod tests {
     fn insert_one() {
         let mut blockchain = Blockchain::new();
         let genesis_hash = blockchain.tip();
-        let block = generate_random_block(&genesis_hash);
-        blockchain.insert(&block);
-        assert_eq!(blockchain.tip(), block.hash());
+        let block1 = generate_random_block(&genesis_hash);
+        let block2 = generate_random_block(&(block1.hash()));
+        let block3 = generate_random_block(&(block2.hash()));
+        let block4 = generate_random_block(&genesis_hash);
+        let block5 = generate_random_block(&(block4.hash()));
+        blockchain.insert(&block1);
+        blockchain.insert(&block2);
+        blockchain.insert(&block3);
+        blockchain.insert(&block4);
+        blockchain.insert(&block5);
+        assert_eq!(blockchain.tip(), block5.hash());
 
     }
 }

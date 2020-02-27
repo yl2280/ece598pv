@@ -62,7 +62,7 @@ impl Context {
                 }
 
                 Message::NewBlockHashes(nonce) =>{
-                    debug!("NewBlockHashes: {:?}", nonce);
+                    // debug!("NewBlockHashes: {:?}", nonce);
                     if nonce.len() != 0{
                         let mut vec = Vec::new();
                         for i in nonce.iter(){
@@ -79,7 +79,7 @@ impl Context {
                 }
 
                 Message::GetBlocks(blk) => {
-                    debug!("GetBlocks: {:?}", blk);
+                    // debug!("GetBlocks: {:?}", blk);
                     let blockchain = self.blockchain.lock().unwrap();
                     let mut nonce = blk.clone();
                     // if nonce.len() != 0{
@@ -99,7 +99,7 @@ impl Context {
                 }
 
                 Message::Blocks(blk) => {
-                    debug!("Blocks: {:?}", blk);
+                    // debug!("Blocks: {:?}", blk);
                     let mut blockchain = self.blockchain.lock().unwrap();
                     let mut nonce = blk.clone();
                     for i in nonce.iter(){

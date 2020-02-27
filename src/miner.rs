@@ -98,6 +98,7 @@ impl Context {
     }
 
     fn miner_loop(&mut self) {
+        let mut count = 0;
         let rand_u8 = digest::digest(&digest::SHA256,"442cabd17e40d95ac0932d977c0759397b9db4d93c4d62c368b95419db574db0".as_bytes());
         let diff_rand = <H256>::from(rand_u8);
         // main mining loop
@@ -157,12 +158,18 @@ impl Context {
             	content: None,
             	height: 0,
             };
-            let size = self.blockchain.lock().unwrap().map.keys().len();
+            let mut size = self.blockchain.lock().unwrap().map.keys().len();
             info!("the length of blockchain is {}", size);
             if block.hash() <=diff{
+                count = count + 1;
             	self.blockchain.lock().unwrap().insert(&block);
                 let mut vec = Vec::new();
-                vec.push(block.hash());
+                // vec.push(block.hash());
+                // size = self.blockchain.lock().unwrap().map.keys().len();
+
+                for i in self.blockchain.lock().unwrap().map.keys(){
+                    vec.push(i.clone());
+                }
                 self.server.broadcast(Message::NewBlockHashes(vec));
             }
 
@@ -173,6 +180,11 @@ impl Context {
             // }
 
             // self.blockchain.lock().unwrap().insert(&block);
+            // if bc.height > 0 {
+            size = self.blockchain.lock().unwrap().map.keys().len();
+            println!("{:?} blocks mined", count);
+            println!("current blockchain size is {:?}", size);
+            // }
 
 
             if let OperatingState::Run(i) = self.operating_state {
